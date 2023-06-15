@@ -1,0 +1,31 @@
+package com.example.webxemphim.Services;
+
+import com.example.webxemphim.Repositories.DaoDienRepository;
+import com.example.webxemphim.Repositories.PhimRepository;
+import com.example.webxemphim.models.DaoDien;
+import com.example.webxemphim.models.Phim;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class PhimService {
+    @Autowired
+    PhimRepository phimRepository;
+
+
+    public List<Phim> listAll(){return  phimRepository.findAll();}
+
+
+    public void save(Phim phim){phimRepository.save(phim);}
+    public Phim get(Long id)
+    {
+        return phimRepository.findById(id).get();
+    }
+
+    public void delete(Long id)
+    {
+        phimRepository.deleteById(id);
+    }
+}
