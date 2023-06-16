@@ -17,7 +17,17 @@ public class PhimService {
 
     public List<Phim> listAll(){return  phimRepository.findAll();}
 
-
+    public List<Phim> listQuantity(int quantity){
+        List<Phim> allPhims = phimRepository.findAll();
+       if(quantity >= allPhims.size())
+       {
+           return allPhims;
+       }
+       else
+       {
+           return allPhims.subList(0,quantity);
+       }
+    }
     public void save(Phim phim){phimRepository.save(phim);}
     public Phim get(Long id)
     {

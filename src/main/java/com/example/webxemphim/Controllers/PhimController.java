@@ -38,6 +38,12 @@ public class PhimController {
         return new ResponseEntity<>(phims, HttpStatus.OK);
     }
 
+    @GetMapping()
+    public ResponseEntity<List<Phim>> listAll(@RequestParam(defaultValue = "10") int quantity) {
+        List<Phim> phims = phimService.listQuantity(quantity);
+        return new ResponseEntity<>(phims, HttpStatus.OK);
+    }
+
     @PostMapping("/add")
     public void addPhim(@RequestParam("tenphim") String tenphim,
                         @RequestParam("diemimdb") String diemimdb,

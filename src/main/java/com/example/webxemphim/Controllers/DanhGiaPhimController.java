@@ -51,18 +51,11 @@ public class DanhGiaPhimController {
     @PostMapping("/add")
     public void add(@RequestBody DanhGiaPhim danhGiaPhim)
     {
+
         System.out.println("add");
         danhGiaPhimService.save(danhGiaPhim);
     }
 
-//    @PostMapping("/addAll")
-//    public void addAll(@RequestBody List<TheLoai > theloais)
-//    {
-//        for (TheLoai theloai : theloais){
-//            System.out.println("add");
-//            theLoaiService.save(theloai);
-//        }
-//
-//    }
+
 
 }
