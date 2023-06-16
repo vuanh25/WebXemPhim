@@ -59,6 +59,7 @@ public class DanhGiaPhim {
         return thoigianbinhluan;
     }
 
+
     public void setThoigianbinhluan(Date thoigianbinhluan) {
         this.thoigianbinhluan = thoigianbinhluan;
     }

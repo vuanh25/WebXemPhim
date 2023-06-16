@@ -2,15 +2,21 @@ package com.example.webxemphim.Controllers;
 
 
 import com.example.webxemphim.Services.DanhGiaPhimService;
+import com.example.webxemphim.Services.PhimService;
+import com.example.webxemphim.Services.UserServices;
 import com.example.webxemphim.models.DanhGiaPhim;
 import com.example.webxemphim.models.NguoiDung;
+import com.example.webxemphim.models.Phim;
 import com.example.webxemphim.models.TheLoai;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -18,6 +24,10 @@ import java.util.NoSuchElementException;
 public class DanhGiaPhimController {
     @Autowired
     private DanhGiaPhimService danhGiaPhimService;
+    @Autowired
+    private UserServices userServices;
+    @Autowired
+    private PhimService phimService;
 
 
     @GetMapping()
@@ -49,11 +59,33 @@ public class DanhGiaPhimController {
 
 
     @PostMapping("/add")
-    public void add(@RequestBody DanhGiaPhim danhGiaPhim)
+    public void add(@RequestBody Map<String, String> requestData)
     {
+        DanhGiaPhim danhGiaPhim1 = new DanhGiaPhim();
 
-        System.out.println("add");
-        danhGiaPhimService.save(danhGiaPhim);
+        Long idPhim =  Long.parseLong(requestData.get("idphim"));
+        Long idNguoiDung = Long.parseLong(requestData.get("idnguoidung"));
+        String noidungbinhluan = requestData.get("noidungbinhluan");
+        Integer sosao = Integer.parseInt(requestData.get("sosao"));
+        Date thoigianbinhluan = Date.valueOf(requestData.get("thoigianbinhluan"));
+        danhGiaPhim1.setNoidungbinhluan(noidungbinhluan);
+        danhGiaPhim1.setSosao(sosao);
+        danhGiaPhim1.setThoigianbinhluan(thoigianbinhluan);
+        NguoiDung nguoiDung = userServices.get(idNguoiDung);
+        Phim phim = phimService.get(idPhim);
+
+        if (nguoiDung == null)
+        {
+            throw  new RuntimeException("Người dùng không tồn tại");
+        }
+        if (phim == null)
+        {
+            throw  new RuntimeException("Phim không tồn tại");
+        }
+        danhGiaPhim1.setNguoidung(nguoiDung);
+        danhGiaPhim1.setDanhGiaPhim(phim);
+        danhGiaPhimService.save(danhGiaPhim1);
+
     }
 
 

@@ -38,8 +38,8 @@ public class PhimController {
         return new ResponseEntity<>(phims, HttpStatus.OK);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<Phim>> listAll(@RequestParam(defaultValue = "10") int quantity) {
+    @GetMapping("{quantity}")
+    public ResponseEntity<List<Phim>> listAll(@RequestParam int quantity) {
         List<Phim> phims = phimService.listQuantity(quantity);
         return new ResponseEntity<>(phims, HttpStatus.OK);
     }
