@@ -19,7 +19,24 @@ public class DienVien {
     @Column(name = "hinhanhdienvien",nullable = false)
     private String hinhanhdienvien;
 
+    @OneToMany(mappedBy = "dienvien",cascade = CascadeType.ALL)
+    private List<DienVienDongPhim> dienviendongphims;
 
+    public DienVien(Long idDienVien, String tendienvien, String hinhanhdienvien, List<DienVienDongPhim> dienviendongphims) {
+        this.idDienVien = idDienVien;
+        this.tendienvien = tendienvien;
+        this.hinhanhdienvien = hinhanhdienvien;
+        this.dienviendongphims = dienviendongphims;
+    }
+
+
+    public List<DienVienDongPhim> getDienviendongphims() {
+        return dienviendongphims;
+    }
+
+    public void setDienviendongphims(List<DienVienDongPhim> dienviendongphims) {
+        this.dienviendongphims = dienviendongphims;
+    }
 
     public Long getIdDienVien() {
         return idDienVien;
@@ -56,5 +73,14 @@ public class DienVien {
         this.idDienVien = idDienVien;
         this.tendienvien = tendienvien;
         this.hinhanhdienvien = hinhanhdienvien;
+    }
+
+
+    @Transient
+    public String getPhotosImagePath() {
+        if (hinhanhdienvien == null || idDienVien == null)
+            return null;
+
+        return "/photos/dienviens/" + idDienVien + "/" + hinhanhdienvien;
     }
 }

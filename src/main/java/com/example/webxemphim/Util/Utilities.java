@@ -11,3 +11,4 @@ public class Utilities {
         return siteURL.replace(request.getServletPath(), "");
     }
 }
+

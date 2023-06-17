@@ -28,6 +28,14 @@ public class PhimService {
            return allPhims.subList(0,quantity);
        }
     }
+
+    public List<Phim> searchMovies(String keyword) {
+        return phimRepository.findByTenphimContainingIgnoreCase(keyword);
+    }
+
+    public List<Phim> searchMoviesByTheLoai(String tenTheLoai) {
+        return phimRepository.searchMoviesByTheLoai(tenTheLoai);
+    }
     public void save(Phim phim){phimRepository.save(phim);}
     public Phim get(Long id)
     {

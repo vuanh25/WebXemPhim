@@ -38,20 +38,11 @@ public class Phim {
     @JoinColumn(name = "idtheloai",nullable = false)
     private TheLoai TheLoai;
 
-//    @ManyToOne
-//    @JoinColumn(name = "iddanhgia")
-//    private DanhGiaPhim danhgiaphim;
-
-//    @ManyToOne
-//    @JoinColumn(name = "iddienviendongphim",nullable = false)
-//    private DienVienDongPhim dienviendongphim;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "phim")
+    @JsonIgnore
+    private List<DienVienDongPhim> dienviendongphims;
 
 
-
-
-//    @OneToMany(mappedBy = "DienVienDongPhim")
-//    @JsonIgnore
-//    private  List<DienVienDongPhim> dienViendongphims;
 
     @OneToMany(mappedBy = "DanhGiaPhim")
     @JsonIgnore
@@ -99,6 +90,32 @@ public class Phim {
 
     public void setNoidungphim(String noidungphim) {
         this.noidungphim = noidungphim;
+    }
+
+    public List<DienVienDongPhim> getDienviendongphims() {
+        return dienviendongphims;
+    }
+
+    public void setDienviendongphims(List<DienVienDongPhim> dienviendongphims) {
+        this.dienviendongphims = dienviendongphims;
+    }
+
+    public Phim(Long idphim, String tenphim, Date ngaysanxuat, String noidungphim, String diemIMDB, Long luotxem, Long thoiluong, String hinhanh, String linkphim, DaoDien daodien, com.example.webxemphim.models.TheLoai theLoai, List<DienVienDongPhim> dienviendongphims, List<DanhGiaPhim> danhgiaphims, Double sosaotrungbinh, Integer soluotdanhgia) {
+        this.idphim = idphim;
+        this.tenphim = tenphim;
+        this.ngaysanxuat = ngaysanxuat;
+        this.noidungphim = noidungphim;
+        this.diemIMDB = diemIMDB;
+        this.luotxem = luotxem;
+        this.thoiluong = thoiluong;
+        this.hinhanh = hinhanh;
+        this.linkphim = linkphim;
+        this.daodien = daodien;
+        TheLoai = theLoai;
+        this.dienviendongphims = dienviendongphims;
+        this.danhgiaphims = danhgiaphims;
+        this.sosaotrungbinh = sosaotrungbinh;
+        this.soluotdanhgia = soluotdanhgia;
     }
 
     public String getDiemIMDB() {
@@ -200,5 +217,15 @@ public class Phim {
 
     public void setSoluotdanhgia(Integer soluotdanhgia) {
         this.soluotdanhgia = soluotdanhgia;
+    }
+
+
+
+    @Transient
+    public String getPhotosImagePath() {
+        if (hinhanh == null || idphim == null)
+            return null;
+
+        return "/photos/phims/" + idphim + "/" + hinhanh;
     }
 }

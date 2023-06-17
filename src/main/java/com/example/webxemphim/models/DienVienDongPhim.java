@@ -2,43 +2,34 @@ package com.example.webxemphim.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "DienVienDongPhim")
 public class DienVienDongPhim {
 
-    @EmbeddedId
-    private DienVienDongPhimId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long iddienviendongphim;
 
     @Column(name = "tenvaidien",length = 50)
     private String tenvaidien;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("idphim")
+    @ManyToOne
+    @JoinColumn(name = "phim_id")
     private Phim phim;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("iddienvien")
-    private DienVien dienVien;
+    @ManyToOne
+    @JoinColumn(name = "iddienvien")
+    private DienVien dienvien;
 
     public DienVienDongPhim() {
     }
 
-    public DienVienDongPhim(DienVienDongPhimId id, String tenvaidien, Phim phim, DienVien dienVien) {
-        this.id = id;
-        this.tenvaidien = tenvaidien;
-        this.phim = phim;
-        this.dienVien = dienVien;
-    }
 
-    public DienVienDongPhimId getId() {
-        return id;
-    }
 
-    public void setId(DienVienDongPhimId id) {
-        this.id = id;
-    }
+
 
     public String getTenvaidien() {
         return tenvaidien;
@@ -48,6 +39,26 @@ public class DienVienDongPhim {
         this.tenvaidien = tenvaidien;
     }
 
+
+
+
+
+    public Long getIddienviendongphim() {
+        return iddienviendongphim;
+    }
+
+    public void setIddienviendongphim(Long iddienviendongphim) {
+        this.iddienviendongphim = iddienviendongphim;
+    }
+
+    public DienVienDongPhim(Long iddienviendongphim, String tenvaidien, Phim phim, DienVien dienvien) {
+        this.iddienviendongphim = iddienviendongphim;
+        this.tenvaidien = tenvaidien;
+        this.phim = phim;
+        this.dienvien = dienvien;
+    }
+
+
     public Phim getPhim() {
         return phim;
     }
@@ -56,12 +67,12 @@ public class DienVienDongPhim {
         this.phim = phim;
     }
 
-    public DienVien getDienVien() {
-        return dienVien;
+    public DienVien getDienvien() {
+        return dienvien;
     }
 
-    public void setDienVien(DienVien dienVien) {
-        this.dienVien = dienVien;
+    public void setDienvien(DienVien dienvien) {
+        this.dienvien = dienvien;
     }
 
     @Embeddable

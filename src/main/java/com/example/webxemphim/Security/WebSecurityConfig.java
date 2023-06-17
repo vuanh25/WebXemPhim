@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig {
+public class WebSecurityConfig  {
     @Bean
     protected BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -47,16 +49,13 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(requests -> requests
                         .antMatchers("/webjars/**").permitAll()
                         .antMatchers("/API/**").permitAll()
+                        .antMatchers("/photos/**").permitAll()
                         .antMatchers("/́́́́́").permitAll()
                         .antMatchers("/register").permitAll()
                         .antMatchers("/process_register").permitAll()
                         .antMatchers("/forgot_password").permitAll()
                         .antMatchers("/reset_password").permitAll()
                         .antMatchers("/register_request").permitAll()
-                        .antMatchers("/users/").hasAnyAuthority("USER", "CREATER", "EDITOR", "ADMIN")
-                        .antMatchers("/books/").hasAnyAuthority("USER", "CREATER", "EDITOR", "ADMIN")
-                        .antMatchers("/books/new").hasAnyAuthority("ADMIN", "CREATER")
-                        .antMatchers("/books/edit/**").hasAnyAuthority("ADMIN", "EDITOR")
                         .antMatchers("/books/delete/**")
                         .hasAuthority("ADMIN").anyRequest().authenticated())
                 .formLogin(login -> login.loginPage("/login").permitAll())

@@ -1,22 +1,27 @@
 package com.example.webxemphim.Controllers;
 
 
+import com.example.webxemphim.Repositories.PhimRepository;
 import com.example.webxemphim.Services.DaoDienService;
 import com.example.webxemphim.Services.PhimService;
 import com.example.webxemphim.Services.TheLoaiService;
+import com.example.webxemphim.Util.FileUploadUtil;
 import com.example.webxemphim.models.DaoDien;
+import com.example.webxemphim.models.NguoiDung;
 import com.example.webxemphim.models.Phim;
 import com.example.webxemphim.models.TheLoai;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -31,6 +36,8 @@ public class PhimController {
     @Autowired
     private TheLoaiService theLoaiService;
 
+
+
     @GetMapping()
     public ResponseEntity<List<Phim>> listAll()
     {
@@ -42,6 +49,18 @@ public class PhimController {
     public ResponseEntity<List<Phim>> listAll(@RequestParam int quantity) {
         List<Phim> phims = phimService.listQuantity(quantity);
         return new ResponseEntity<>(phims, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public List<Phim> searchMovies(@RequestParam(value = "keyword", required = false) String keyword,
+                                   @RequestParam(value = "theloai", required = false) String theloai) {
+        if (keyword != null) {
+            return phimService.searchMovies(keyword);
+        } else if (theloai != null) {
+            return phimService.searchMoviesByTheLoai(theloai);
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @PostMapping("/add")
@@ -69,21 +88,28 @@ public class PhimController {
         {
             throw  new RuntimeException("Thể loại không tồn tại");
         }
-        String imageName = saveImage(file);
-        Phim phim1 = new Phim();
-        phim1.setTenphim(tenphim);
-        phim1.setDiemIMDB(diemimdb);
-        phim1.setLinkphim(linkphim);
-        phim1.setLuotxem(luotxem);
-        phim1.setNgaysanxuat(ngaysanxuat);
-        phim1.setNoidungphim(noidungphim);
-        phim1.setThoiluong(thoiluong);
-        phim1.setSoluotdanhgia(soluotdanhgia);
-        phim1.setSosaotrungbinh(sosaotrungbinh);
-        phim1.setHinhanh(imageName);
-        phim1.setDaodien(daoDien);
-        phim1.setTheLoai(theLoai);
-        phimService.save(phim1);
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        Phim phim = new Phim();
+        phim.setTenphim(tenphim);
+        phim.setDiemIMDB(diemimdb);
+        phim.setLinkphim(linkphim);
+        phim.setLuotxem(luotxem);
+        phim.setNgaysanxuat(ngaysanxuat);
+        phim.setNoidungphim(noidungphim);
+        phim.setThoiluong(thoiluong);
+        phim.setSoluotdanhgia(soluotdanhgia);
+        phim.setSosaotrungbinh(sosaotrungbinh);
+        phim.setHinhanh(fileName);
+        phim.setDaodien(daoDien);
+        phim.setTheLoai(theLoai);
+        phimService.save(phim);
+        if (!file.getOriginalFilename().isBlank())
+        {
+            String uploadDir = "photos/phims/" + phim.getIdphim();
+            FileUploadUtil.saveFile(uploadDir,fileName,file);
+        }
+        phimService.save(phim);
+
     }
 
     @GetMapping("/{id}")
@@ -103,15 +129,5 @@ public class PhimController {
 
 
 
-    private String saveImage(MultipartFile imageFile) throws IOException {
-        // Tạo tên duy nhất cho tệp hình ảnh
-        String imageName = UUID.randomUUID().toString() + "." + imageFile.getOriginalFilename().split("\\.")[1];
 
-        // Lưu trữ tệp hình ảnh
-        String imagePath = "path/to/image/directory/" + imageName;
-        File file = new File(imagePath);
-        FileUtils.writeByteArrayToFile(file, imageFile.getBytes());
-
-        return imageName;
-    }
 }

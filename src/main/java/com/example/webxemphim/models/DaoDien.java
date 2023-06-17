@@ -64,4 +64,12 @@ public class DaoDien {
     public void setPhims(List<Phim> phims) {
         this.phims = phims;
     }
+
+    @Transient
+    public String getPhotosImagePath() {
+        if (hinhanhdaodien == null || iddaodien == null)
+            return null;
+
+        return "/photos/daodiens/" + iddaodien + "/" + hinhanhdaodien;
+    }
 }

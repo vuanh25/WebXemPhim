@@ -14,7 +14,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +49,10 @@ public class AuthController {
 
     @Autowired
     private HttpServletRequest request;
+
+
+
+    private AuthenticationManager authenticationManager;
 
 
 
@@ -105,9 +113,22 @@ public class AuthController {
 
 
     @GetMapping("/login")
-    public ResponseEntity<Object> login()
+    public ResponseEntity<Object> login(@RequestParam("email") String email,@RequestParam("matkhau")String matkhau)
     {
-        return ResponseEntity.ok("auth/login");
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            email, matkhau
+                    )
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return ResponseEntity.ok("Login successful");
+        }
+        catch (AuthenticationException e)
+        {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        }
     }
 
 

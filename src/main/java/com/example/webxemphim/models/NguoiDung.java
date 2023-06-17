@@ -1,10 +1,8 @@
 package com.example.webxemphim.models;
 
 import javax.persistence.*;
-import javax.print.attribute.standard.MediaSize;
 import java.sql.Date;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -195,5 +193,13 @@ public class NguoiDung {
 
     public void setHinhanhnguoidung(String hinhanhnguoidung) {
         this.hinhanhnguoidung = hinhanhnguoidung;
+    }
+
+    @Transient
+    public String getPhotosImagePath() {
+        if (hinhanhnguoidung == null || idnguoidung == null)
+            return null;
+
+        return "/photos/users/" + idnguoidung + "/" + hinhanhnguoidung;
     }
 }
