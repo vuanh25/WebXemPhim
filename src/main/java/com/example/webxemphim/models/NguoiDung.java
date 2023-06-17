@@ -3,6 +3,7 @@ package com.example.webxemphim.models;
 import javax.persistence.*;
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -13,7 +14,9 @@ public class NguoiDung {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idnguoidung;
 
-    @Column(name = "hoten",nullable = false,length = 50)
+    @Column(nullable = false, length = 255)
+    private String username;
+    @Column(name = "hoten",length = 50)
     private String hoten;
 
     @Column(name ="gioitinh")
@@ -23,7 +26,7 @@ public class NguoiDung {
     @Column(name = "email",nullable = false,length = 255)
     private String email;
 
-    @Column(name= "sdt",nullable = false,length = 50)
+    @Column(name= "sdt",length = 50)
     private String sdt;
 
     @Column(name = "ngaysinh")
@@ -47,11 +50,12 @@ public class NguoiDung {
     @Column(name = "verification_code", length = 255)
     private String verificationCode;
 
-    private boolean enabled;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
+
 
 
 
@@ -62,8 +66,9 @@ public class NguoiDung {
     public NguoiDung() {
     }
 
-    public NguoiDung(Long idnguoidung, String hoten, String gioitinh, String email, String sdt, Date ngaysinh, String matkhau, String hinhanhnguoidung, String tokenforgotpassword, LocalDateTime timeexpired, boolean isdeleted, String verificationCode, boolean enabled, Set<Role> roles) {
+    public NguoiDung(Long idnguoidung, String username, String hoten, String gioitinh, String email, String sdt, Date ngaysinh, String matkhau, String hinhanhnguoidung, String tokenforgotpassword, LocalDateTime timeexpired, boolean isdeleted, String verificationCode, Set<Role> roles) {
         this.idnguoidung = idnguoidung;
+        this.username = username;
         this.hoten = hoten;
         this.gioitinh = gioitinh;
         this.email = email;
@@ -75,8 +80,15 @@ public class NguoiDung {
         this.timeexpired = timeexpired;
         this.isdeleted = isdeleted;
         this.verificationCode = verificationCode;
-        this.enabled = enabled;
         this.roles = roles;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getVerificationCode() {
@@ -87,13 +99,7 @@ public class NguoiDung {
         this.verificationCode = verificationCode;
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
 
     public Set<Role> getRoles() {
         return roles;

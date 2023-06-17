@@ -33,24 +33,24 @@ public class UserServices {
     public void  delete(Long id){nguoiDungRepository.deleteById(id);}
 
 
-    public void updateResetPasswordToken(String token,String email) throws UsernotFoundException
-    {
-        NguoiDung nguoiDung = nguoiDungRepository.getUserByEmail(email);
-        if (nguoiDung != null)
-        {
-            nguoiDung.setTokenforgotpassword(token);
-            nguoiDung.setTimeexpired(LocalDateTime.now().plusMinutes(1));
-            nguoiDungRepository.save(nguoiDung);
-        }
-        else
-        {
-            throw  new UsernotFoundException("Khong ton tai nguoi dung co email "+ email);
-        }
-    }
+//    public void updateResetPasswordToken(String token,String email) throws UsernotFoundException
+//    {
+//        NguoiDung nguoiDung = nguoiDungRepository.getUserByEmail(email);
+//        if (nguoiDung != null)
+//        {
+//            nguoiDung.setTokenforgotpassword(token);
+//            nguoiDung.setTimeexpired(LocalDateTime.now().plusMinutes(1));
+//            nguoiDungRepository.save(nguoiDung);
+//        }
+//        else
+//        {
+//            throw  new UsernotFoundException("Khong ton tai nguoi dung co email "+ email);
+//        }
+//    }
 
-    public NguoiDung getUserByTokenforgotpassWord(String token) {
-        return nguoiDungRepository.getUserBytokenforgotpassword(token);
-    }
+//    public NguoiDung getUserByTokenforgotpassWord(String token) {
+//        return nguoiDungRepository.getUserBytokenforgotpassword(token);
+//    }
 
     public void updatePassword(NguoiDung nguoiDung, String newPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -62,17 +62,17 @@ public class UserServices {
     }
 
 
-    public boolean verify(String verificationCode) {
-        NguoiDung nguoidung = nguoiDungRepository.findByVerificationCode(verificationCode);
-        if (nguoidung == null || nguoidung.isEnabled()) {
-            return false;
-        } else {
-            nguoidung.setVerificationCode(null);
-            nguoidung.setEnabled(true);
-            nguoiDungRepository.save(nguoidung);
-            return true;
-        }
-    }
+//    public boolean verify(String verificationCode) {
+//        NguoiDung nguoidung = nguoiDungRepository.findByVerificationCode(verificationCode);
+//        if (nguoidung == null || nguoidung.isEnabled()) {
+//            return false;
+//        } else {
+//            nguoidung.setVerificationCode(null);
+//            nguoidung.setEnabled(true);
+//            nguoiDungRepository.save(nguoidung);
+//            return true;
+//        }
+//    }
 
 
 

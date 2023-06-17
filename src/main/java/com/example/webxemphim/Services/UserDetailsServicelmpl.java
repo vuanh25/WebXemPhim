@@ -8,20 +8,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
-@Controller
+import javax.transaction.Transactional;
+
+@Service
 public class UserDetailsServicelmpl implements UserDetailsService {
     @Autowired
-    private NguoiDungRepository nguoiDungRepository;
+    NguoiDungRepository nguoiDungRepository;
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // TODO Auto-generated method stub
-        NguoiDung nguoiDung = nguoiDungRepository.getUserByUsername(username);
-        if (nguoiDung == null) {
-            throw new UsernameNotFoundException("Could not find user");
-        }
+        NguoiDung nguoiDung = nguoiDungRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
 
-        return new CustomUserDetails(nguoiDung);
+        return CustomUserDetails.build(nguoiDung);
     }
 }

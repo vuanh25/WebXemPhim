@@ -1,35 +1,43 @@
 package com.example.webxemphim.Controllers;
 
-import com.example.webxemphim.Exception.UsernotFoundException;
+import com.example.webxemphim.Payload.request.LoginRequest;
+import com.example.webxemphim.Payload.request.SignupRequest;
+import com.example.webxemphim.Payload.response.MessageResponse;
 import com.example.webxemphim.Repositories.NguoiDungRepository;
+import com.example.webxemphim.Repositories.RoleRepository;
+import com.example.webxemphim.Repository.UserInfoResponse;
 import com.example.webxemphim.Services.MailServices;
 import com.example.webxemphim.Services.RoleServices;
+import com.example.webxemphim.Services.UserDetailsServicelmpl;
 import com.example.webxemphim.Services.UserServices;
-import com.example.webxemphim.Util.Utilities;
+import com.example.webxemphim.Security.jwt.JwtUtil;
 import com.example.webxemphim.models.CustomUserDetails;
+import com.example.webxemphim.models.ERole;
 import com.example.webxemphim.models.NguoiDung;
-import net.bytebuddy.utility.RandomString;
+import com.example.webxemphim.models.Role;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
+import javax.validation.Valid;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/API")
+@RequestMapping("/API/auth")
 public class AuthController {
 
     @Autowired
@@ -50,131 +58,111 @@ public class AuthController {
     @Autowired
     private HttpServletRequest request;
 
+    @Autowired
+    private UserDetailsServicelmpl userDetailsServicelmpl;
 
-
+    @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+    @Autowired
+    PasswordEncoder encoder;
+    @Autowired
+    private RoleRepository roleRepository;
 
 
-    @GetMapping("/auth/me")
-    public ResponseEntity<NguoiDung> findMe(Authentication authentication)
+
+
+
+
+
+
+
+
+    @PostMapping ("/signin")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest)
     {
-        NguoiDung nguoiDung = ((CustomUserDetails) authentication.getPrincipal()).getNguoiDung();
 
-        if (nguoiDung == null)
-        {
-            return ResponseEntity.notFound().build();
-        }
-        else
-        {
-            return ResponseEntity.ok(nguoiDung);
-        }
-    }
-
-    @PostMapping("/process_register")
-    public ResponseEntity<Object> processRegister(@RequestBody NguoiDung nguoiDung)
-    {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encodePassword = passwordEncoder.encode(nguoiDung.getMatkhau());
-        nguoiDung.setMatkhau(encodePassword);
-        String verificationCode = RandomString.make(30);
-        nguoiDung.setVerificationCode(verificationCode);
-        nguoiDungRepository.save(nguoiDung);
-        try
-        {
-            String activeAccountLink = Utilities.getSiteURL(request) + "/register_request?verificationCode=" + verificationCode;
-            String subject = "Link verify";
-            String content = "<p>Chao`,</p>" + "<p>Kích hoạt tài khoản.</p>"
-                    + "<p>Nhấn vào liên kết bên dưới để kích hoạt tài khoản:</p>" + "<p><a href=\"" + activeAccountLink
-                    + "\">Active Account</a></p>" + "<br>";
-            mailServices.sendEmail(nguoiDung.getEmail(), subject, content);
-
-            return ResponseEntity.ok("Đăng ký tài khoản thành công");
-        }
-        catch (Exception ex)
-        {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-
-    @GetMapping("/register_request")
-    public ResponseEntity<Object> showRegisterRequest(@RequestParam("verificationCode")String verificationCode)
-    {
-        if (userServices.verify(verificationCode))
-        {
-            return  ResponseEntity.ok("Tai khoan da duoc mo");
-        }
-        else
-        {
-            return ResponseEntity.ok("Tai khoan chua mo duoc");
-        }
-    }
-
-
-    @GetMapping("/login")
-    public ResponseEntity<Object> login(@RequestParam("email") String email,@RequestParam("matkhau")String matkhau)
-    {
-        try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            email, matkhau
+                            loginRequest.getUsername(),loginRequest.getPassword()
                     )
             );
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return ResponseEntity.ok("Login successful");
-        }
-        catch (AuthenticationException e)
-        {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
-        }
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        ResponseCookie jwtCookie = jwtUtil.generateJwtCookie(userDetails);
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .body(new UserInfoResponse(userDetails.getId(),
+                        userDetails.getUsername(),
+                        userDetails.getEmail(),
+                        roles) {
+                });
+
     }
 
-
-    @GetMapping("/forgot_password")
-    public ResponseEntity<String> showForgotPasswordForm() {
-        // Trả về một thông báo hoặc một đối tượng DTO chứa thông tin của API
-        String message = "Please provide your email to reset password.";
-        return ResponseEntity.ok(message);
-    }
-    @PostMapping("/forgot_password")
-    public ResponseEntity<String> processForgotPassword(@RequestBody Map<String,String> requestParams)
-    {
-        String email = requestParams.get("email");
-        String token = RandomString.make(30);
-        try
-        {
-            userServices.updateResetPasswordToken(token,email);
-            String resetPasswordLink = Utilities.getSiteURL(request)+ "/reset_password?token" +token;
-            String subject = "Link password";
-
-            String content = "<p>Hello,</p>" + "<p>You have requested to reset your password.</p>"
-                    + "<p>Click the link below to change your password:</p>" + "<p><a href=\"" + resetPasswordLink
-                    + "\">Change my password</a></p>" + "<br>" + "<p>Ignore this email if you do remember your password, "
-                    + "or you have not made the request.</p>";
-            mailServices.sendEmail(email, subject, content);
-
-            String message = "We have sent a reset password link to your email. Please check.";
-            return ResponseEntity.ok(message);
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest) {
+        if (nguoiDungRepository.existsByUsername(signUpRequest.getUsername())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
-        catch (UsernotFoundException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
-        } catch (UnsupportedEncodingException | MessagingException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while sending email");
-        }
-    }
 
-    @GetMapping("/verify")
-    public ResponseEntity<String> verifyUser(@RequestParam("code") String code) {
-        if (userServices.verify(code)) {
-            String message = "Congratulations, your account has been verified.";
-            return ResponseEntity.ok(message);
+        if (nguoiDungRepository.existsByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
+        }
+
+        // Create new user's account
+//        NguoiDung user = new NguoiDung(signUpRequest.getUsername(),
+//                signUpRequest.getEmail(),
+//                encoder.encode(signUpRequest.getPassword()));
+        NguoiDung user = new NguoiDung();
+        user.setEmail(signUpRequest.getEmail());
+        user.setUsername(signUpRequest.getUsername());
+        user.setMatkhau(encoder.encode(signUpRequest.getPassword()));
+
+        Set<String> strRoles = signUpRequest.getRole();
+        Set<Role> roles = new HashSet<>();
+
+        if (strRoles == null) {
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(userRole);
         } else {
-            String errorMessage = "Sorry, we could not verify the account. It may have already been verified, or the verification code is incorrect.";
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+            strRoles.forEach(role -> {
+                switch (role) {
+                    case "admin":
+                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(adminRole);
+
+                        break;
+                    default:
+                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(userRole);
+                }
+            });
         }
+
+        user.setRoles(roles);
+        nguoiDungRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
+
+    @PostMapping("/signout")
+    public ResponseEntity<?> logoutUser() {
+        ResponseCookie cookie = jwtUtil.getCleanJwtCookie();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new MessageResponse("You've been signed out!"));
+    }
+
+
+
 
 
 
