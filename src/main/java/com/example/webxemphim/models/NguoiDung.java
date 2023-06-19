@@ -2,7 +2,8 @@ package com.example.webxemphim.models;
 
 import javax.persistence.*;
 import java.sql.Date;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,11 +39,16 @@ public class NguoiDung {
     @Column(name = "hinhanhnguoidung")
     private String hinhanhnguoidung;
 
-    @Column(nullable = true, length = 255)
-    private String tokenforgotpassword;
+    @Column(nullable = true)
+    private Integer otp;
+
+
 
     @Column(nullable = true)
-    private LocalDateTime timeexpired;
+    private LocalDate localDate;
+
+    @Column(nullable = true)
+    private LocalTime localTime;
 
     @Column(name = "isdeleted", columnDefinition = "boolean default false")
     private boolean isdeleted;
@@ -66,7 +72,7 @@ public class NguoiDung {
     public NguoiDung() {
     }
 
-    public NguoiDung(Long idnguoidung, String username, String hoten, String gioitinh, String email, String sdt, Date ngaysinh, String matkhau, String hinhanhnguoidung, String tokenforgotpassword, LocalDateTime timeexpired, boolean isdeleted, String verificationCode, Set<Role> roles) {
+    public NguoiDung(Long idnguoidung, String username, String hoten, String gioitinh, String email, String sdt, Date ngaysinh, String matkhau, String hinhanhnguoidung, Integer otp, LocalDate localDate, LocalTime localTime, boolean isdeleted, String verificationCode, Set<Role> roles) {
         this.idnguoidung = idnguoidung;
         this.username = username;
         this.hoten = hoten;
@@ -76,8 +82,9 @@ public class NguoiDung {
         this.ngaysinh = ngaysinh;
         this.matkhau = matkhau;
         this.hinhanhnguoidung = hinhanhnguoidung;
-        this.tokenforgotpassword = tokenforgotpassword;
-        this.timeexpired = timeexpired;
+        this.otp = otp;
+        this.localDate = localDate;
+        this.localTime = localTime;
         this.isdeleted = isdeleted;
         this.verificationCode = verificationCode;
         this.roles = roles;
@@ -99,7 +106,13 @@ public class NguoiDung {
         this.verificationCode = verificationCode;
     }
 
+    public int getOtp() {
+        return otp;
+    }
 
+    public void setOtp(int otp) {
+        this.otp = otp;
+    }
 
     public Set<Role> getRoles() {
         return roles;
@@ -109,20 +122,25 @@ public class NguoiDung {
         this.roles = roles;
     }
 
-    public String getTokenforgotpassword() {
-        return tokenforgotpassword;
+
+    public void setOtp(Integer otp) {
+        this.otp = otp;
     }
 
-    public void setTokenforgotpassword(String tokenforgotpassword) {
-        this.tokenforgotpassword = tokenforgotpassword;
+    public LocalDate getLocalDate() {
+        return localDate;
     }
 
-    public LocalDateTime getTimeexpired() {
-        return timeexpired;
+    public void setLocalDate(LocalDate localDate) {
+        this.localDate = localDate;
     }
 
-    public void setTimeexpired(LocalDateTime timeexpired) {
-        this.timeexpired = timeexpired;
+    public LocalTime getLocalTime() {
+        return localTime;
+    }
+
+    public void setLocalTime(LocalTime localTime) {
+        this.localTime = localTime;
     }
 
     public boolean isIsdeleted() {

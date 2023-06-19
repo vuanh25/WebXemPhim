@@ -228,4 +228,14 @@ public class Phim {
 
         return "/photos/phims/" + idphim + "/" + hinhanh;
     }
+
+    @Transient
+    public String getVideosImagePath() {
+        if (linkphim == null || idphim == null)
+            return null;
+
+        return "/photos/videos/" + idphim + "/" + linkphim;
+    }
+
+
 }

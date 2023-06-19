@@ -2,11 +2,8 @@ package com.example.webxemphim.Controllers;
 
 
 import com.example.webxemphim.Services.DaoDienService;
-import com.example.webxemphim.Services.DienVienService;
 import com.example.webxemphim.Util.FileUploadUtil;
 import com.example.webxemphim.models.DaoDien;
-import com.example.webxemphim.models.DienVien;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +11,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
+import java.util.NoSuchElementException;
 
 @RestController
+@CrossOrigin(origins = {"http://127.0.0.1:5500"})
 @RequestMapping("/API/daodiens")
 public class DaoDienController {
     @Autowired
@@ -45,13 +42,25 @@ public class DaoDienController {
         daoDienService.save(daodien);
         if (!file.getOriginalFilename().isBlank())
         {
-            String uploadDir = "photos/đaoiens/" + daodien.getIddaodien();
+            String uploadDir = "photos/daodiens/" + daodien.getIddaodien();
             FileUploadUtil.saveFile(uploadDir,fileName,file);
         }
         daoDienService.save(daodien);
     }
 
-
+    @GetMapping("/chi-tiet/{id}")
+    public ResponseEntity<DaoDien> get(@PathVariable(name = "id") Long id) {
+        System.out.println("get1");
+        try {
+            DaoDien daoDien = daoDienService.get(id);
+            if (daoDien == null) {
+                return new ResponseEntity<DaoDien>(HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<DaoDien>(daoDien, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<DaoDien>(HttpStatus.NOT_FOUND);
+        }
+    }
 
 
 

@@ -30,10 +30,8 @@ public class WebSecurityConfig {
         return new AuthTokenFilter();
     }
 
-//  @Override
-//  public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-//    authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-//  }
+
+
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -72,6 +70,7 @@ public class WebSecurityConfig {
                         .antMatchers("/webjars/**").permitAll()
                         .antMatchers("/API/**").permitAll()
                         .antMatchers("/photos/**").permitAll()
+                        .antMatchers("/videos/**").permitAll()
                         .antMatchers("/́́́́́").permitAll()
                         .antMatchers("/register").permitAll()
                         .antMatchers("/process_register").permitAll()

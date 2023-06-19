@@ -6,17 +6,18 @@ import com.example.webxemphim.Payload.response.MessageResponse;
 import com.example.webxemphim.Repositories.NguoiDungRepository;
 import com.example.webxemphim.Repositories.RoleRepository;
 import com.example.webxemphim.Repository.UserInfoResponse;
+import com.example.webxemphim.Security.jwt.JwtUtil;
 import com.example.webxemphim.Services.MailServices;
 import com.example.webxemphim.Services.RoleServices;
 import com.example.webxemphim.Services.UserDetailsServicelmpl;
 import com.example.webxemphim.Services.UserServices;
-import com.example.webxemphim.Security.jwt.JwtUtil;
 import com.example.webxemphim.models.CustomUserDetails;
 import com.example.webxemphim.models.ERole;
 import com.example.webxemphim.models.NguoiDung;
 import com.example.webxemphim.models.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,13 +25,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -115,10 +115,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
 
-        // Create new user's account
-//        NguoiDung user = new NguoiDung(signUpRequest.getUsername(),
-//                signUpRequest.getEmail(),
-//                encoder.encode(signUpRequest.getPassword()));
         NguoiDung user = new NguoiDung();
         user.setEmail(signUpRequest.getEmail());
         user.setUsername(signUpRequest.getUsername());
@@ -159,6 +155,70 @@ public class AuthController {
         ResponseCookie cookie = jwtUtil.getCleanJwtCookie();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new MessageResponse("You've been signed out!"));
+    }
+
+    @GetMapping("/forgotpassword")
+    public String forgotPassword(@RequestParam String email) {
+        String checkUserExist = this.userServices.getValidatedUserEmail(email);
+        return checkUserExist;
+    }
+
+
+
+    @PostMapping("/resetpassword")
+    public ResponseEntity<String> resetPasswd(@RequestParam String email)
+    {
+
+        NguoiDung userObj=userServices.fetchByUserEmailId(email);
+
+        if(userObj!=null)
+        {
+            int myotp= (int)(Math.random()*9000)+1000;
+            userObj.setOtp(myotp);
+            LocalTime time=LocalTime.now();
+            LocalDate date=LocalDate.now();
+
+
+            userObj.setLocalTime(time);
+            userObj.setLocalDate(date);
+
+            userServices.save(userObj);
+            boolean status = userServices.sendEmail(myotp,email);
+            if(!status)
+            {
+                return new ResponseEntity<>("Otp is not sending", HttpStatus.BAD_REQUEST);
+            }
+
+
+            return new ResponseEntity<>("Otp sent on " + userObj.getEmail(),HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>("Email is invaild",HttpStatus.BAD_REQUEST);
+
+    }
+
+
+    @PostMapping("/resetpassword/verify")
+    public ResponseEntity<String> resetPasswdWithVerify(@RequestParam String email,@RequestParam int otp, @RequestParam String pass)
+    {
+
+        NguoiDung userObj=userServices.fetchByUserEmailId(email);
+        if (userObj==null)
+            return new ResponseEntity<>("Incorrect User",HttpStatus.BAD_REQUEST);
+        int myotp=userObj.getOtp();
+        int t=LocalTime.now().minusMinutes(5).compareTo(userObj.getLocalTime());
+        int d=userObj.getLocalDate().compareTo(LocalDate.now());
+
+        if(d!=0 || t>=0)
+            return new ResponseEntity<>("Otp expired! Please otp generate again.",HttpStatus.BAD_REQUEST);
+
+        if(myotp!=otp)
+            return new ResponseEntity<>("Incorrect otp",HttpStatus.BAD_REQUEST);
+
+        // reset pass
+        userServices.updatePass(userObj,pass);
+
+        return new ResponseEntity<>("Password Changed Successfully ",HttpStatus.OK);
     }
 
 

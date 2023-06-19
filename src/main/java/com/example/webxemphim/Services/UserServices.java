@@ -1,22 +1,29 @@
 package com.example.webxemphim.Services;
 
 
-import com.example.webxemphim.Exception.UsernotFoundException;
 import com.example.webxemphim.Repositories.NguoiDungRepository;
 import com.example.webxemphim.models.NguoiDung;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
+
 
 @Service
 @Transactional
 public class UserServices {
     @Autowired
     private NguoiDungRepository nguoiDungRepository;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
+
+    @Autowired
+    PasswordEncoder encoder;
 
 
     public List<NguoiDung> listAll(){return  nguoiDungRepository.findAll();}
@@ -28,51 +35,95 @@ public class UserServices {
         return nguoiDung;
     }
 
+
+
     public NguoiDung get(Long id){return nguoiDungRepository.findById(id).orElse(null);}
 
     public void  delete(Long id){nguoiDungRepository.deleteById(id);}
 
 
-//    public void updateResetPasswordToken(String token,String email) throws UsernotFoundException
-//    {
-//        NguoiDung nguoiDung = nguoiDungRepository.getUserByEmail(email);
-//        if (nguoiDung != null)
-//        {
-//            nguoiDung.setTokenforgotpassword(token);
-//            nguoiDung.setTimeexpired(LocalDateTime.now().plusMinutes(1));
-//            nguoiDungRepository.save(nguoiDung);
-//        }
-//        else
-//        {
-//            throw  new UsernotFoundException("Khong ton tai nguoi dung co email "+ email);
-//        }
+
+//    public void updatePassword(NguoiDung nguoiDung, String newPassword) {
+//        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//        String encodedPassword = passwordEncoder.encode(newPassword);
+//        nguoiDung.setMatkhau(encodedPassword);
+//
+//        nguoiDung.setOtp(0);
+//        nguoiDungRepository.save(nguoiDung);
 //    }
 
-//    public NguoiDung getUserByTokenforgotpassWord(String token) {
-//        return nguoiDungRepository.getUserBytokenforgotpassword(token);
-//    }
+    public String getValidatedUserEmail(String email) {
+        for(NguoiDung user:nguoiDungRepository.findAll())
+        {
+            if(user.getEmail().equals(email))
+            {
 
-    public void updatePassword(NguoiDung nguoiDung, String newPassword) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encodedPassword = passwordEncoder.encode(newPassword);
-        nguoiDung.setMatkhau(encodedPassword);
+                return	user.getUsername() + " tồn tại trong cơ sở dữ liệu. mật khẩu của bạn là" + user.getMatkhau();
 
-        nguoiDung.setTokenforgotpassword(null);
-        nguoiDungRepository.save(nguoiDung);
+            }
+
+        }
+
+        return "Email không hợp lệ hoặc người dùng chưa được đăng ký";
+
     }
 
 
-//    public boolean verify(String verificationCode) {
-//        NguoiDung nguoidung = nguoiDungRepository.findByVerificationCode(verificationCode);
-//        if (nguoidung == null || nguoidung.isEnabled()) {
-//            return false;
-//        } else {
-//            nguoidung.setVerificationCode(null);
-//            nguoidung.setEnabled(true);
-//            nguoiDungRepository.save(nguoidung);
-//            return true;
-//        }
-//    }
+
+
+    public boolean sendEmail(int otp,String email) {
+
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(email);
+
+        msg.setSubject("Reset lại mật khẩu của bạn");
+        msg.setText("OTP của bạn là: " + otp);
+        javaMailSender.send(msg);
+        return true;
+    }
+
+    public boolean getValidEmail(String email) {
+
+        for(NguoiDung user:nguoiDungRepository.findAll())
+        {
+            if(user.getEmail().equals(email))
+            {
+                return	true;
+            }
+
+        }
+
+        return false;
+    }
+
+    public String setPass(String pass) {
+        for(NguoiDung user:nguoiDungRepository.findAll())
+        {
+            user.setMatkhau(pass);
+            nguoiDungRepository.save(user);
+        }
+        return "Mật khẩu đã được cập nhập";
+    }
+
+    public NguoiDung fetchByUserEmailId(String emailId) {
+
+        return nguoiDungRepository.findByEmail(emailId);
+    }
+
+    public NguoiDung updatePass(NguoiDung user,String pass) {
+        user.setMatkhau(encoder.encode(pass));
+        nguoiDungRepository.save(user);
+        return user;
+    }
+
+
+
+
+
+
+
+
+
 
 
 
