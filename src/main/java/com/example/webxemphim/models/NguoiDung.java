@@ -90,6 +90,14 @@ public class NguoiDung {
         this.roles = roles;
     }
 
+    public Integer getOtp() {
+        return otp;
+    }
+
+    public void setOtp(Integer otp) {
+        this.otp = otp;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -106,9 +114,7 @@ public class NguoiDung {
         this.verificationCode = verificationCode;
     }
 
-    public int getOtp() {
-        return otp;
-    }
+
 
     public void setOtp(int otp) {
         this.otp = otp;
@@ -123,9 +129,7 @@ public class NguoiDung {
     }
 
 
-    public void setOtp(Integer otp) {
-        this.otp = otp;
-    }
+
 
     public LocalDate getLocalDate() {
         return localDate;

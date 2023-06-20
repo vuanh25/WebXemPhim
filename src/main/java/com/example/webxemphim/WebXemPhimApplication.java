@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class WebXemPhimApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(WebXemPhimApplication.class, args);
     }
 

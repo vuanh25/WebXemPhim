@@ -27,6 +27,8 @@ public class JwtUtil {
     @Value("${bezkoder.app.jwtCookieName}")
     private String jwtCookie;
 
+
+
     public String getJwtFromCookies(HttpServletRequest request) {
         Cookie cookie = WebUtils.getCookie(request, jwtCookie);
         if (cookie != null) {

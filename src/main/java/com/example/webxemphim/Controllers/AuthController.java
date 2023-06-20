@@ -7,9 +7,6 @@ import com.example.webxemphim.Repositories.NguoiDungRepository;
 import com.example.webxemphim.Repositories.RoleRepository;
 import com.example.webxemphim.Repository.UserInfoResponse;
 import com.example.webxemphim.Security.jwt.JwtUtil;
-import com.example.webxemphim.Services.MailServices;
-import com.example.webxemphim.Services.RoleServices;
-import com.example.webxemphim.Services.UserDetailsServicelmpl;
 import com.example.webxemphim.Services.UserServices;
 import com.example.webxemphim.models.CustomUserDetails;
 import com.example.webxemphim.models.ERole;
@@ -27,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -43,23 +39,15 @@ public class AuthController {
     @Autowired
     private UserServices userServices;
 
-    @Autowired
-    private RoleServices roleServices;
 
 
     @Autowired
     private NguoiDungRepository nguoiDungRepository;
 
 
-    @Autowired
-    private MailServices mailServices;
 
 
-    @Autowired
-    private HttpServletRequest request;
 
-    @Autowired
-    private UserDetailsServicelmpl userDetailsServicelmpl;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -89,7 +77,7 @@ public class AuthController {
                             loginRequest.getUsername(),loginRequest.getPassword()
                     )
             );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         ResponseCookie jwtCookie = jwtUtil.generateJwtCookie(userDetails);
@@ -106,7 +94,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (nguoiDungRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
