@@ -8,10 +8,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PhimService {
     @Autowired
     PhimRepository phimRepository;
+
+    public List<Phim> listAllNoPage()
+    {
+        return  phimRepository.findAll();
+    }
 
     public Page<Phim> listAll(int pageNum,String theloai,String keyword) {
         int pageSize = 10;

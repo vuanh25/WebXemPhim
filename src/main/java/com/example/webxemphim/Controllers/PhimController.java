@@ -1,6 +1,7 @@
 package com.example.webxemphim.Controllers;
 
 
+import com.example.webxemphim.Repositories.PhimRepository;
 import com.example.webxemphim.Services.DaoDienService;
 import com.example.webxemphim.Services.PhimService;
 import com.example.webxemphim.Services.TheLoaiService;
@@ -32,34 +33,14 @@ public class PhimController {
     @Autowired
     private TheLoaiService theLoaiService;
 
+    @Autowired
+    private PhimRepository phimRepository;
 
 
-//    @GetMapping()
-//    public ResponseEntity<List<Phim>> listAll()
-//    {
-//        List<Phim> phims = phimService.listAll();
-//        return new ResponseEntity<>(phims, HttpStatus.OK);
-//    }
+    @GetMapping()
+    public List<Phim> listAll() {return phimRepository.findAll();}
 
 
-
-//    @GetMapping("{quantity}")
-//    public ResponseEntity<List<Phim>> listAll(@RequestParam int quantity) {
-//        List<Phim> phims = phimService.listQuantity(quantity);
-//        return new ResponseEntity<>(phims, HttpStatus.OK);
-//    }
-
-//    @GetMapping("/search")
-//    public List<Phim> searchMovies(@RequestParam(value = "keyword", required = false) String keyword,
-//                                   @RequestParam(value = "theloai", required = false) String theloai) {
-//        if (keyword != null) {
-//            return phimService.searchMovies(keyword);
-//        } else if (theloai != null) {
-//            return phimService.searchMoviesByTheLoai(theloai);
-//        } else {
-//            return new ArrayList<>();
-//        }
-//    }
 
     @PostMapping("/add")
     public void addPhim(@RequestParam("tenphim") String tenphim,
@@ -114,8 +95,9 @@ public class PhimController {
     }
 
     @GetMapping("/chi-tiet/{id}")
-    public ResponseEntity<Phim> get(@PathVariable(name = "id") Long id) {
-        System.out.println("get1");
+    public ResponseEntity<Phim> get(
+            @PathVariable(name = "id") Long id
+    ) {
         try {
             Phim phim = phimService.get(id);
             if (phim == null) {
@@ -137,5 +119,67 @@ public class PhimController {
         Page<Phim> page = phimService.listAll(pageNum,theloai,keyword);
         return page.getContent();
     }
+
+
+
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<?> update(
+            @PathVariable(name = "id") Long id,
+            @Param("tenphim") String tenphim,
+            @Param("diemimdb") String diemimdb,
+            @Param("linkphim") MultipartFile filephim,
+            @Param("ngaysanxuat") Date ngaysanxuat,
+            @Param("noidungphim") String noidungphim,
+            @Param("thoiluong") Long thoiluong,
+            @Param("idtheloai") Long idtheloai,
+            @Param("iddaodien") Long iddaodien,
+            @Param("hinhanhphim") MultipartFile file
+           ) {
+        System.out.println("edit");
+        try {
+            if (file != null && !file.isEmpty())
+            {
+                String filename = StringUtils.cleanPath(file.getOriginalFilename());
+            }
+            if (filephim != null && !filephim.isEmpty())
+            {
+                String fileName1 = StringUtils.cleanPath(filephim.getOriginalFilename());
+            }
+            Phim phim = phimService.get(id);
+            if (phim == null) {
+                return new ResponseEntity<DaoDien>(HttpStatus.NOT_FOUND);
+            }
+            DaoDien daoDien = daoDienService.get(iddaodien);
+            TheLoai theLoai = theLoaiService.get(idtheloai);
+            if (daoDien == null)
+            {
+                throw  new RuntimeException("Đạo diễn không tồn tại");
+            }
+            if(theLoai == null)
+            {
+                throw  new RuntimeException("Thể loại không tồn tại");
+            }
+            Phim phim1 = new Phim();
+            phim1.setIdphim(id);
+            phim1.setTenphim(tenphim);
+            phim1.setThoiluong(thoiluong);
+            phim1.setDiemIMDB(diemimdb);
+            phim1.setNgaysanxuat(ngaysanxuat);
+            phim1.setNoidungphim(noidungphim);
+            phim1.setDaodien(daoDien);
+            phim1.setTheLoai(theLoai);
+            phimService.save(phim1);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @DeleteMapping("/delete/{id}")
+    public void delete(@PathVariable(name = "id") Long id) {
+        System.out.println("Delete");
+        phimService.delete(id);
+    }
+
+
 
 }
