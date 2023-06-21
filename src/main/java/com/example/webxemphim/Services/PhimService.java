@@ -20,6 +20,18 @@ public class PhimService {
         return  phimRepository.findAll();
     }
 
+    public List<Phim> listAllNopage(String theloai,String keyword) {
+        if (theloai != null)
+        {
+            return phimRepository.searchMoviesByTheLoaiNoPage(theloai);
+        }
+        else if (keyword != null)
+        {
+            return phimRepository.searchPhimByTenphim(keyword);
+        }
+        return phimRepository.findAll();
+    }
+
     public Page<Phim> listAll(int pageNum,String theloai,String keyword) {
         int pageSize = 10;
 
@@ -38,7 +50,9 @@ public class PhimService {
 
 
 
-    public void save(Phim phim){phimRepository.save(phim);}
+    public Phim save(Phim phim){phimRepository.save(phim);
+        return phim;
+    }
     public Phim get(Long id)
     {
         return phimRepository.findById(id).get();

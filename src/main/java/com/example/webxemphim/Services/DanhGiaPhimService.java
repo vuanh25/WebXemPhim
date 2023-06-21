@@ -1,9 +1,7 @@
 package com.example.webxemphim.Services;
 
 import com.example.webxemphim.Repositories.DanhGiaPhimRepository;
-import com.example.webxemphim.Repositories.DaoDienRepository;
 import com.example.webxemphim.models.DanhGiaPhim;
-import com.example.webxemphim.models.DaoDien;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +14,9 @@ public class DanhGiaPhimService {
     public List<DanhGiaPhim> listAll(){return  danhGiaPhimRepository.findAll();}
 
 
-    public void save(DanhGiaPhim danhGiaPhim){danhGiaPhimRepository.save(danhGiaPhim);}
+    public DanhGiaPhim save(DanhGiaPhim danhGiaPhim){danhGiaPhimRepository.save(danhGiaPhim);
+        return danhGiaPhim;
+    }
     public DanhGiaPhim get(Long id)
     {
         return danhGiaPhimRepository.findById(id).get();

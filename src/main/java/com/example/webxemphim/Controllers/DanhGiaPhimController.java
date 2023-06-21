@@ -7,14 +7,12 @@ import com.example.webxemphim.Services.UserServices;
 import com.example.webxemphim.models.DanhGiaPhim;
 import com.example.webxemphim.models.NguoiDung;
 import com.example.webxemphim.models.Phim;
-import com.example.webxemphim.models.TheLoai;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -86,6 +84,31 @@ public class DanhGiaPhimController {
         danhGiaPhim1.setDanhGiaPhim(phim);
         danhGiaPhimService.save(danhGiaPhim1);
 
+    }
+
+
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<DanhGiaPhim> update(
+            @RequestParam("iddanhgiaphim") Long id,
+            @RequestBody DanhGiaPhim danhGiaPhim) {
+        System.out.println("edit");
+        try {
+
+            DanhGiaPhim danhGiaPhim1 = danhGiaPhimService.get(id);
+            if (danhGiaPhim1 == null) {
+                return new ResponseEntity<DanhGiaPhim>(HttpStatus.NOT_FOUND);
+            }
+
+            DanhGiaPhim savedanhgiaphim = danhGiaPhimService.save(danhGiaPhim);
+            return ResponseEntity.ok(savedanhgiaphim);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @DeleteMapping("/delete/{id}")
+    public void delete(@PathVariable(name = "id") Long id) {
+        System.out.println("Delete");
+        danhGiaPhimService.delete(id);
     }
 
 

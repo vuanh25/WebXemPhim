@@ -63,10 +63,12 @@ public class DaoDienController {
     }
 
 
+
+
     @PutMapping("/edit/{id}")
-    public ResponseEntity<?> update(
+    public ResponseEntity<DaoDien> update(
             @RequestParam("iddaodien") Long id,
-            @RequestParam("tendaodien") String name,
+            @RequestBody DaoDien daoDien,
             @RequestParam("hinhanhdaodien") MultipartFile file) {
         System.out.println("edit");
         try {
@@ -75,12 +77,9 @@ public class DaoDienController {
             if (daoDien1 == null) {
                 return new ResponseEntity<DaoDien>(HttpStatus.NOT_FOUND);
             }
-            DaoDien daodien = new DaoDien();
-            daodien.setIddaodien(id);
-            daodien.setTendaodien(name);
-            daodien.setHinhanhdaodien(fileName);
-            daoDienService.save(daodien);
-            return new ResponseEntity<>(HttpStatus.OK);
+            daoDien.setHinhanhdaodien(fileName);
+            DaoDien savedaodien = daoDienService.save(daoDien);
+            return ResponseEntity.ok(savedaodien);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

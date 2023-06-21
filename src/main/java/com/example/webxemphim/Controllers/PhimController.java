@@ -23,6 +23,8 @@ import java.sql.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static com.example.webxemphim.Util.FileUploadUtil.saveFile;
+
 @RestController
 @RequestMapping("/API/phims")
 public class PhimController {
@@ -87,8 +89,8 @@ public class PhimController {
         {
             String uploadDir = "photos/phims/" + phim.getIdphim();
             String uploadDir1 = "photos/videos/" + phim.getIdphim();
-            FileUploadUtil.saveFile(uploadDir,fileName,file);
-            FileUploadUtil.saveFile(uploadDir1,filePhim,filephim);
+            saveFile(uploadDir,fileName,file);
+            saveFile(uploadDir1,filePhim,filephim);
         }
         phimService.save(phim);
 
@@ -120,56 +122,51 @@ public class PhimController {
         return page.getContent();
     }
 
+    @GetMapping("/search")
+    public List<Phim> list(
+            @Param("theloai") String theloai,
+            @Param("keyword") String keyword
+    ) {
+        return phimService.listAllNopage(theloai,keyword);
+    }
+
+
+
+
 
 
     @PutMapping("/edit/{id}")
-    public ResponseEntity<?> update(
+
+    public ResponseEntity<Phim> update(
             @PathVariable(name = "id") Long id,
-            @Param("tenphim") String tenphim,
-            @Param("diemimdb") String diemimdb,
-            @Param("linkphim") MultipartFile filephim,
-            @Param("ngaysanxuat") Date ngaysanxuat,
-            @Param("noidungphim") String noidungphim,
-            @Param("thoiluong") Long thoiluong,
-            @Param("idtheloai") Long idtheloai,
-            @Param("iddaodien") Long iddaodien,
-            @Param("hinhanhphim") MultipartFile file
-           ) {
-        System.out.println("edit");
+            @RequestParam("linkphim") MultipartFile filePhim,
+            @RequestParam("hinhanhphim") MultipartFile fileHinhAnh,
+            @RequestBody Phim phim
+           ) throws  IOException {
         try {
-            if (file != null && !file.isEmpty())
+
+            Phim foundphim = phimService.get(id);
+            if (foundphim == null) {
+                return new ResponseEntity<Phim>(HttpStatus.NOT_FOUND);
+            }
+            String filehinhanh = StringUtils.cleanPath(fileHinhAnh.getOriginalFilename());
+            String filephim = StringUtils.cleanPath(filePhim.getOriginalFilename());
+            phim.setHinhanh(filehinhanh);
+            phim.setLinkphim(filephim);
+            phimService.save(phim);
+            if (!fileHinhAnh.getOriginalFilename().isBlank())
             {
-                String filename = StringUtils.cleanPath(file.getOriginalFilename());
+                String uploadDir = "photos/phims/" + phim.getIdphim();
+                FileUploadUtil.saveFile(uploadDir,filehinhanh,fileHinhAnh);
             }
-            if (filephim != null && !filephim.isEmpty())
+            if (!filePhim.getOriginalFilename().isBlank())
             {
-                String fileName1 = StringUtils.cleanPath(filephim.getOriginalFilename());
+                String uploadDir ="photos/videos/" + phim.getIdphim();
+                FileUploadUtil.saveFile(uploadDir,filehinhanh,fileHinhAnh);
             }
-            Phim phim = phimService.get(id);
-            if (phim == null) {
-                return new ResponseEntity<DaoDien>(HttpStatus.NOT_FOUND);
-            }
-            DaoDien daoDien = daoDienService.get(iddaodien);
-            TheLoai theLoai = theLoaiService.get(idtheloai);
-            if (daoDien == null)
-            {
-                throw  new RuntimeException("Đạo diễn không tồn tại");
-            }
-            if(theLoai == null)
-            {
-                throw  new RuntimeException("Thể loại không tồn tại");
-            }
-            Phim phim1 = new Phim();
-            phim1.setIdphim(id);
-            phim1.setTenphim(tenphim);
-            phim1.setThoiluong(thoiluong);
-            phim1.setDiemIMDB(diemimdb);
-            phim1.setNgaysanxuat(ngaysanxuat);
-            phim1.setNoidungphim(noidungphim);
-            phim1.setDaodien(daoDien);
-            phim1.setTheLoai(theLoai);
-            phimService.save(phim1);
-            return new ResponseEntity<>(HttpStatus.OK);
+            Phim savephim =  phimService.save(phim);
+
+            return ResponseEntity.ok(savephim);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

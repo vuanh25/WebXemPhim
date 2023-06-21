@@ -69,16 +69,20 @@ public class DienVienController {
     }
 
     @PutMapping("/edit/{id}")
-    public ResponseEntity<?> update(@RequestBody DienVien dienvien, @PathVariable(name = "id") Long id) {
+    public ResponseEntity<DienVien> update(
+            @RequestParam("iddienvien") Long id,
+            @RequestBody DienVien dienVien,
+            @RequestParam("hinhanhdienvien") MultipartFile file) {
         System.out.println("edit");
         try {
-            DienVien foundienvien = dienVienService.get(id);
-            if (foundienvien == null) {
+            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            DienVien dienVien1 = dienVienService.get(id);
+            if (dienVien1 == null) {
                 return new ResponseEntity<DienVien>(HttpStatus.NOT_FOUND);
             }
-            dienvien.setIdDienVien(id);
-            dienVienService.save(dienvien);
-            return new ResponseEntity<>(HttpStatus.OK);
+            dienVien.setHinhanhdienvien(fileName);
+            DienVien savedienvien = dienVienService.save(dienVien);
+            return ResponseEntity.ok(savedienvien);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
