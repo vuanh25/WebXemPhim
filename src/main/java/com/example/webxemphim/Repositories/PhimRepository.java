@@ -13,15 +13,20 @@ public interface PhimRepository extends JpaRepository<Phim,Long> {
     Page<Phim> findByTenphimContainingIgnoreCase(String keyword, Pageable pageNum);
 
 
-//    Page<Phim> findByTheLoaiTentheloaiAndTenphimContainingIgnoreCase( Pageable pageable,@Param("tentheloai") String theloai, String keyword);
 
     @Query("SELECT p FROM Phim p WHERE p.TheLoai.tentheloai LIKE %:tentheloai%")
     List<Phim> searchMoviesByTheLoaiNoPage(@Param("tentheloai") String tentheloai);
 
 
-    List<Phim> searchPhimByTenphim(String keyword);
+
+    @Query("SELECT p FROM Phim p WHERE p.tenphim LIKE %:tenphim%")
+    List<Phim> searchPhimByTenphim(@Param("tenphim")String tenphim);
+
 
 
     @Query("SELECT p FROM Phim p WHERE p.TheLoai.tentheloai LIKE %:tentheloai%")
     Page<Phim> searchMoviesByTheLoai(@Param("tentheloai") String tentheloai, Pageable pageNum);
+
+
+
 }

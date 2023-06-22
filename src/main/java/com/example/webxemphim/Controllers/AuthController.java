@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin(origins = {"http://127.0.0.1:5500"})
 @RequestMapping("/API/auth")
 public class AuthController {
 

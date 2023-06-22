@@ -48,6 +48,22 @@ public class PhimService {
         return phimRepository.findAll(pageable);
     }
 
+    public int getTotalPages( String theloai, String keyword) {
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(0, pageSize );
+        if (theloai != null) {
+            Page<Phim> page = phimRepository.searchMoviesByTheLoai(theloai, pageable);
+            return page.getTotalPages();
+        } else if (keyword != null) {
+            Page<Phim> page = phimRepository.findByTenphimContainingIgnoreCase(keyword, pageable);
+            return page.getTotalPages();
+        }
+        Page<Phim> page = phimRepository.findAll(pageable);
+        return page.getTotalPages();
+    }
+
+
+
 
 
     public Phim save(Phim phim){phimRepository.save(phim);

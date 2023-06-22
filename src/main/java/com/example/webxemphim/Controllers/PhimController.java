@@ -7,6 +7,7 @@ import com.example.webxemphim.Services.PhimService;
 import com.example.webxemphim.Services.TheLoaiService;
 import com.example.webxemphim.Util.FileUploadUtil;
 import com.example.webxemphim.models.DaoDien;
+import com.example.webxemphim.models.PageResult;
 import com.example.webxemphim.models.Phim;
 import com.example.webxemphim.models.TheLoai;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import java.util.NoSuchElementException;
 import static com.example.webxemphim.Util.FileUploadUtil.saveFile;
 
 @RestController
+@CrossOrigin(origins = {"http://127.0.0.1:5500"})
 @RequestMapping("/API/phims")
 public class PhimController {
     @Autowired
@@ -113,13 +115,17 @@ public class PhimController {
 
 
     @GetMapping("/page/{pageNum}")
-    public List<Phim> list(
+    public PageResult<Phim> list(
             @PathVariable(name = "pageNum") int pageNum,
             @Param("theloai") String theloai,
             @Param("keyword") String keyword
     ) {
         Page<Phim> page = phimService.listAll(pageNum,theloai,keyword);
-        return page.getContent();
+        PageResult<Phim> pageResult = new PageResult<>();
+        pageResult.setContent(page.getContent());
+        pageResult.setTotalPages(phimService.getTotalPages(theloai, keyword));
+
+        return pageResult;
     }
 
     @GetMapping("/search")
@@ -137,7 +143,7 @@ public class PhimController {
 
     @PutMapping("/edit/{id}")
 
-    public ResponseEntity<Phim> update(
+    public ResponseEntity<?> update(
             @PathVariable(name = "id") Long id,
             @RequestParam("linkphim") MultipartFile filePhim,
             @RequestParam("hinhanhphim") MultipartFile fileHinhAnh,
