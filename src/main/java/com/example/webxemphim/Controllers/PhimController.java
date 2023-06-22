@@ -1,7 +1,9 @@
 package com.example.webxemphim.Controllers;
 
 
+import com.example.webxemphim.Repositories.DanhGiaPhimRepository;
 import com.example.webxemphim.Repositories.PhimRepository;
+import com.example.webxemphim.Services.DanhGiaPhimService;
 import com.example.webxemphim.Services.DaoDienService;
 import com.example.webxemphim.Services.PhimService;
 import com.example.webxemphim.Services.TheLoaiService;
@@ -41,8 +43,15 @@ public class PhimController {
     private PhimRepository phimRepository;
 
 
+    @Autowired
+    private DanhGiaPhimService danhGiaPhimService;
+
+    @Autowired
+    private DanhGiaPhimRepository danhGiaPhimRepository;
+
     @GetMapping()
-    public List<Phim> listAll() {return phimRepository.findAll();}
+    public List<Phim> listAll() {
+        return phimRepository.findAll();}
 
 
 
@@ -57,7 +66,6 @@ public class PhimController {
                         @RequestParam("sosaotrungbinh") Double sosaotrungbinh,
                         @RequestParam("thoiluong") Long thoiluong,
                         @RequestParam("idtheloai") Long idtheloai,
-                        @RequestParam("iddanhgia") Long iddanhgia,
                         @RequestParam("iddaodien") Long iddaodien,
                         @RequestParam("hinhanhphim") MultipartFile file) throws IOException
     {
@@ -143,12 +151,12 @@ public class PhimController {
 
     @PutMapping("/edit/{id}")
 
-    public ResponseEntity<?> update(
+    public ResponseEntity<Phim> update(
             @PathVariable(name = "id") Long id,
+            @RequestBody Phim phim,
             @RequestParam("linkphim") MultipartFile filePhim,
-            @RequestParam("hinhanhphim") MultipartFile fileHinhAnh,
-            @RequestBody Phim phim
-           ) throws  IOException {
+            @RequestParam("hinhanhphim") MultipartFile fileHinhAnh
+    ) throws  IOException {
         try {
 
             Phim foundphim = phimService.get(id);
@@ -177,6 +185,8 @@ public class PhimController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+
     @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable(name = "id") Long id) {
         System.out.println("Delete");

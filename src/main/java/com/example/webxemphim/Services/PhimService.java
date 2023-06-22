@@ -78,4 +78,10 @@ public class PhimService {
     {
         phimRepository.deleteById(id);
     }
+
+    public int countTotalPages() {
+        int pageSize = 10;
+        long totalMovies = phimRepository.count();
+        return (int) Math.ceil((double) totalMovies / pageSize);
+    }
 }

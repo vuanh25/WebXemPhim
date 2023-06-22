@@ -44,7 +44,7 @@ public class Phim {
 
 
 
-    @OneToMany(mappedBy = "DanhGiaPhim")
+    @OneToMany(mappedBy = "DanhGiaPhim",fetch = FetchType.LAZY)
     @JsonIgnore
     private List<DanhGiaPhim> danhgiaphims;
 
